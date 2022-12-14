@@ -1,113 +1,131 @@
 ﻿<krpano version="1.20.11" title="Virtual Tour">
 
-	<include url="skin/vtourskin.xml" />
-	<!-- <include url="blending_demo.xml" /> -->
+		<include url="%VIEWER%/plugins/combobox.xml" />
 
-	<!-- add a custom map (container+scrollarea+image) -->
-	<layer name="skin_layer">
-		<layer name="skin_scroll_window">
-			<layer name="skin_scroll_layer">
-				<layer name="skin_scroll_container">
-					<layer name="skin_map_container">
-						<layer name="skin_map" type="container">
-							<layer name="skin_map_scrollarea" url="%VIEWER%/plugins/scrollarea.js" align="center" width="100%" height="100%">
-								<layer name="skin_map_image" url="corfumap.jpeg" align="center" onloaded="copy(layer[skin_map_scrollarea].width, width); copy(layer[skin_map_scrollarea].height, height); layer[skin_map_scrollarea].update();">
-									<layer name="mapspot1" style="mapspot" x="16.93%" y="14.80%" linkedscene="scene_nana1" />
-									<layer name="mapspot2" style="mapspot" x="52.34%" y="14.50%" linkedscene="scene_nana2" />
-									<layer name="mapspot3" style="mapspot" x="58.72%" y="16.40%" linkedscene="scene_nana3" />
-									<layer name="mapspot4" style="mapspot" x="48.57%" y="24.00%" linkedscene="scene_nana4" />
-									<layer name="mapspot5" style="mapspot" x="58.85%" y="47.30%" linkedscene="scene_nana5" />
-									<layer name="mapspot6" style="mapspot" x="54.43%" y="58.60%" linkedscene="scene_nana6" />
-								</layer>
-							</layer>
-						</layer>
-					</layer>
-				</layer>
-			</layer>
-		</layer>
-	</layer>
-	
-	<action name ="mapspot1">
-		trace(skin_layer called)
+	<action name="comboboxexamples" autorun="onstart">
+		loadscene(0);
 	</action>
 
-	<style name="mapspot"
-		style="skin_tooltips"
-		url="skin/vtourskin_mapspot.png"
-		align="lefttop" edge="bottom" scale="0.5"
-		onover.addevent="tween(scale,0.55,0.2);"
-		onout.addevent="tween(scale,0.5,0.2);"
-		tooltip="" onloaded.addevent="copy(tooltip, scene[get(linkedscene)].title);"
-		onclick="skin_showmap(false); skin_gotoscene(get(linkedscene));"
+
+	<!-- mixed static/dynamic example - add items dynamically -->
+	<combobox name="cbscenes" design="vtour" align="leftbottom" x="10" y="10" onloaded="add_scene_items();" />
+	<action name="add_scene_items" scope="local">
+		for(set(i,0), i LT scene.count, inc(i),
+			caller.additem(calc('[img src=[dq]' + scene[get(i)].thumburl +  '[dq] style=[dq]border:1px solid rgba(255,255,255,0.5);width:48px;height:32px;vertical-align:middle;margin-right:8px;[dq]/] '+scene[get(i)].title), calc('loadscene('+i+',null,MERGE,BLEND(0.5))') );
+		);
+	</action>
+
+	<!-- static example -->
+	<combobox name="cbsettings" design="vtour" align="righttop" x="10" y="10" onchange="selectItemByName(0);">
+		<item name="item0" caption="SETTINGS" />
+		<item name="item1" caption="Drag Control"       onclick="set(control.mode,drag);" />
+		<item name="item2" caption="Move Control"       onclick="set(control.mode,moveto);" />
+		<item name="item3" caption="Normal View"        onclick="cm_normal_view();" />
+		<item name="item4" caption="Fisheye View"       onclick="cm_fisheye_view();" />
+		<item name="item5" caption="Stereographic View" onclick="cm_stereographic_view();" />
+		<item name="item6" caption="Architectural View" onclick="cm_architectural_view();" />
+		<item name="item7" caption="Pannini View"       onclick="cm_pannini_view();" />
+		<item name="item8" caption="Little Planet View" onclick="cm_littleplanet_view();" />
+	</combobox>
+
+	<!-- full dynamic example -->
+	<action name="rebuild_design_selection" autorun="onstart" scope="local" args="design"  onchange="selectItemByName(0);">
+		removeComboboxLayer(cbdesigns);
+		addComboboxLayer(cbdesigns, get(design));
+		set(layer[cbdesigns].align, 'center');
+		layer[cbdesigns].additem('Select Combobox Design');
+		for(set(i,0), i LT combobox_design.count, inc(i),
+			layer[cbdesigns].additem( get(combobox_design[get(i)].name), calc('rebuild_design_selection(' + combobox_design[get(i)].name + ');')  );
+		);
+	</action>
+
+
+	<!-- some custom example designs -->
+	<combobox_design name="rounded" margin="3" open_close_speed="0.25">
+		<style name="combobox_container_style"
+			bgcolor="0xFFFFFF"
+			bgalpha="0.95"
+			bgborder="1 0xFFFFFF 0.5"
+			bgroundedge="5"
+			bgshadow="2 4 20 0x000000 0.5"
+			/>
+		<style name="combobox_marker_style"
+			css="color:#999999;"
+			bg="false"
+			txtshadow=""
+			/>
+		<style name="combobox_item_style"
+			css="color:#222222;"
+			padding="4 4"
+			bg="false"
+			bgcolor="0xCCCCCC"
+			bgalpha="1.0"
+			bgroundedge="3"
+			txtshadow=""
+			onoveritem="set(css, 'color:#2277FF;');"
+			onoutitem="set(css, 'color:#222222;');"
+			/>
+	</combobox_design>
+
+	<combobox_design name="classic" margin="0" open_close_speed="0.25">
+		<style name="combobox_container_style"
+			bgcolor="0xFFFFFF"
+			bgalpha="1.0"
+			bgborder="2 0x333333 0.5"
+			bgroundedge="0"
+			bgshadow=""
+			height="50"
+			/>
+		<style name="combobox_marker_style"
+			css="color:#222222;"
+			bg="false"
+			txtshadow=""
+			/>
+		<style name="combobox_item_style"
+			css="color:#222222;"
+			padding="7"
+			bg="false"
+			bgcolor="0x777777"
+			bgalpha="1.0"
+			bgroundedge="0"
+			txtshadow=""
+			onoveritem="set(bg,true); set(css, 'color:#FFFFFF;');"
+			onoutitem="set(bg,false); set(css, 'color:#222222;');"
+			/>
+	</combobox_design>
 	
-		/>
+	<combobox_design name="glas" margin="2" open_close_speed="0.25">
+		<style name="combobox_container_style"
+			bgcolor="0xEEEEEE"
+			bgalpha="0.5"
+			bgborder="1 0x333333 0.5"
+			bgroundedge="5"
+			bgshadow="0 4 10 0x000000 0.3"
+			height="50"
+			/>
+		<style name="combobox_marker_style"
+			css="color:#222222;"
+			alpha="0.7"
+			bg="false"
+			txtshadow=""
+			/>
+		<style name="combobox_item_style"
+			css="color:#222222;"
+			padding="4"
+			bg="false"
+			bgborder="1 0x333333 0.0"
+			bgcolor="0xFFFFFF"
+			bgalpha="1"
+			bgroundedge="3"
+			txtshadow="0 0 4 0xFFFFFF 1"
+			onoveritem="set(bg,true); set(bgborder, '1 0x333333 0.5');"
+			onoutitem="set(bg,false); set(bgborder, '1 0x333333 0.0');"
+			/>
+	</combobox_design>
 
-	<!-- customize skin settings: maps, gyro, webvr, thumbnails, tooltips, layout, design, ... -->
-	<skin_settings maps="true"
-	               maps_type="google"
-	               maps_bing_api_key=""
-	               maps_google_api_key=""
-	               maps_zoombuttons="false"
-	               maps_loadonfirstuse="true"
-	               gyro="true"
-	               gyro_keeplookingdirection="false"
-	               webvr="true"
-	               webvr_keeplookingdirection="true"
-	               webvr_prev_next_hotspots="true"
-	               littleplanetintro="false"
-	               followmousecontrol="false"
-	               title="true"
-				   autotour="true"
-	               thumbs="true"
-	               thumbs_width="120" thumbs_height="80" thumbs_padding="10" thumbs_crop="0|40|240|160"
-	               thumbs_opened="false"
-	               thumbs_text="false"
-	               thumbs_dragging="true"
-	               thumbs_onhoverscrolling="false"
-	               thumbs_scrollbuttons="false"
-	               thumbs_scrollindicator="false"
-	               thumbs_loop="false"
-	               tooltips_buttons="false"
-	               tooltips_thumbs="false"
-	               tooltips_hotspots="false"
-	               tooltips_mapspots="false"
-	               deeplinking="false"
-	               loadscene_flags="MERGE"
-	               loadscene_blend="OPENBLEND(0.5, 0.0, 0.75, 0.05, linear)"
-	               loadscene_blend_prev="SLIDEBLEND(0.5, 180, 0.75, linear)"
-	               loadscene_blend_next="SLIDEBLEND(0.5,   0, 0.75, linear)"
-	               loadingtext=""
-	               layout_width="100%"
-	               layout_maxwidth="814"
-	               controlbar_width="-24"
-	               controlbar_height="40"
-	               controlbar_offset="20"
-	               controlbar_offset_closed="-40"
-	               controlbar_overlap.no-fractionalscaling="10"
-	               controlbar_overlap.fractionalscaling="0"
-	               design_skin_images="vtourskin.png"
-	               design_bgcolor="0x2D3E50"
-	               design_bgalpha="0.8"
-	               design_bgborder="0"
-	               design_bgroundedge="1"
-	               design_bgshadow="0 4 10 0x000000 0.3"
-	               design_thumbborder_bgborder="3 0xFFFFFF 1.0"
-	               design_thumbborder_padding="2"
-	               design_thumbborder_bgroundedge="0"
-	               design_text_css="color:#FFFFFF; font-family:Arial;"
-	               design_text_shadow="1"
-	               />
 
-	<!--
-	    For an alternative skin design either change the <skin_settings> values 
-	    from above or optionally include one of the predefined designs from below.
-	-->
-	<!-- <include url="skin/vtourskin_design_flat_light.xml"  /> -->
-	<!-- <include url="skin/vtourskin_design_glass.xml"       /> -->
-	<!-- <include url="skin/vtourskin_design_ultra_light.xml" /> -->
-	<!-- <include url="skin/vtourskin_design_117.xml"         /> -->
-	<!-- <include url="skin/vtourskin_design_117round.xml"    /> -->
-	<!-- <include url="skin/vtourskin_design_black.xml"       /> -->
+	<!-- include the default contextmenu with different projections -->
+	<include url="%VIEWER%/plugins/contextmenu.xml" />
 
 
 	<layer name='ah' keep='true' type='text' html='ah' css='font-size: 5rem;' onclick='loadscene(scene_nana3, , , COLORBLEND(1, 0xff0000, easeinoutquint))' />
