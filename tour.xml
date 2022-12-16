@@ -1,9 +1,72 @@
 ﻿<krpano version="1.20.11" title="Virtual Tour">
 
-		<include url="%VIEWER%/plugins/combobox.xml" />
+	<include url="%VIEWER%/plugins/combobox.xml" />
 
-	<action name="comboboxexamples" autorun="onstart">
+	<action name="comboboxexamples" keep="true" autorun="onstart">
 		loadscene(0);
+	</action>
+
+	<!-- grid preview pano -->
+	<!-- <preview type="grid(cube,16,16,512,0xCCCCCC,0xFFFFFF,0x999999);" /> -->
+
+	<!-- vignetting image -->
+	<plugin name="mask" keep="true" url="%ROOT%/panos/assets/vignetting.png" width="100%" height="100%" safearea="false" enabled="false" zorder="0" alpha="0" onloaded="tween(alpha,1);" />
+	
+	<!-- enable autorotation -->
+	<autorotate enabled="true" waittime="3.0" accel="0.5" speed="3" horizon="0" tofov="100" keep="true"/>
+	
+
+	<!-- compass with rotating pointer -->
+	<layer name="compass1" keep="true" url="%ROOT%/panos/assets/compass_bg.png" align="lefttop" x="10" y="10" children="false" scalechildren="true" destscale="1.0" onclick="switch(destscale,1.0,0.5);tween(scale,get(destscale));">
+		<layer name="compass1_plate"   url="%ROOT%/panos/assets/compass_plate.png"   align="center"  zorder="1" />
+		<layer name="compass1_pointer" url="%ROOT%/panos/assets/compass_pointer.png" align="center"  zorder="2" />
+		<layer name="compass1_ring"    url="%ROOT%/panos/assets/compass_ring.png"    align="lefttop" zorder="3" />
+	</layer>
+	
+	<!-- compass with rotating plate -->
+	<layer name="compass2" keep="true" url="%ROOT%/panos/assets/compass_bg.png" align="righttop" x="10" y="10" children="false" scalechildren="true" destscale="1.0" onclick="switch(destscale,1.0,0.5);tween(scale,get(destscale));">
+		<layer name="compass2_plate"   url="%ROOT%/panos/assets/compass_plate.png"   align="center"  zorder="1" />
+		<layer name="compass2_pointer" url="%ROOT%/panos/assets/compass_pointer.png" align="center"  zorder="2" />
+		<layer name="compass2_ring"    url="%ROOT%/panos/assets/compass_ring.png"    align="lefttop" zorder="3" />
+	</layer>
+
+
+	<!-- view changing eeent -->
+	<events name="compass_events" onviewchange="compass_update_rotate();" keep="true" />
+
+	<!-- update the rotation values -->
+	<action name="compass_update_rotate" keep="true">
+		set(global_heading, 180);
+		calc(plugin[compass1_pointer].rotate, view.hlookat - global_heading);
+		calc(plugin[compass2_plate].rotate,  global_heading - view.hlookat);
+	</action>
+
+
+	<!-- add some hotspots -->
+	<action name="add_compass_spots" autorun="onstart" keep="true">
+		addspot(n,  0,     0|0| 76|76, 1.0);
+		addspot(no, 45,   78|0|118|76, 0.5);
+		addspot(o,  90,  202|0| 71|76, 1.0);
+		addspot(so, 135, 281|0|109|76, 0.5);
+		addspot(s,  180, 400|0| 69|76, 1.0);
+		addspot(sw, 225, 469|0|134|76, 0.5);
+		addspot(w,  270, 603|0| 86|76, 1.0);
+		addspot(nw, 315, 689|0|141|76, 0.5);
+	</action>
+	
+	<action name="addspot" keep="true">
+		addhotspot(%1);
+		set(hotspot[%1].url, '%ROOT%/panos/assets/hotspots.png');
+		set(hotspot[%1].crop, '%3');
+		set(hotspot[%1].ath, %2);
+		set(hotspot[%1].atv, 0);
+		set(hotspot[%1].scale, %4);
+		set(hotspot[%1].scale1, %4);
+		calc(hotspot[%1].scale2, %4 * 2);
+		set(hotspot[%1].zoom,true);
+		set(hotspot[%1].onover, tween(scale,get(scale2)); );
+		set(hotspot[%1].onout, tween(scale,get(scale1)); );
+		set(hotspot[%1].onclick, lookto(get(ath),get(atv),90); );
 	</action>
 
 
@@ -16,7 +79,7 @@
 	</action>
 
 	<!-- static example -->
-	<combobox name="cbsettings" design="vtour" align="righttop" x="10" y="10" onchange="selectItemByName(0);">
+	<combobox name="cbsettings" design="vtour" align="rightbottom" x="10" y="10" onchange="selectItemByName(0);">
 		<item name="item0" caption="SETTINGS" />
 		<item name="item1" caption="Drag Control"       onclick="set(control.mode,drag);" />
 		<item name="item2" caption="Move Control"       onclick="set(control.mode,moveto);" />
@@ -32,7 +95,7 @@
 	<action name="rebuild_design_selection" autorun="onstart" scope="local" args="design"  onchange="selectItemByName(0);">
 		removeComboboxLayer(cbdesigns);
 		addComboboxLayer(cbdesigns, get(design));
-		set(layer[cbdesigns].align, 'center');
+		set(layer[cbdesigns].align, 'bottom');
 		layer[cbdesigns].additem('Select Combobox Design');
 		for(set(i,0), i LT combobox_design.count, inc(i),
 			layer[cbdesigns].additem( get(combobox_design[get(i)].name), calc('rebuild_design_selection(' + combobox_design[get(i)].name + ');')  );
@@ -128,7 +191,6 @@
 	<include url="%VIEWER%/plugins/contextmenu.xml" />
 
 
-	<layer name='ah' keep='true' type='text' html='ah' css='font-size: 5rem;' onclick='loadscene(scene_nana3, , , COLORBLEND(1, 0xff0000, easeinoutquint))' />
 	
 	<scene name="scene_nana1" title="nana1" onstart="" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/nana1.tiles/thumb.jpg" lat="" lng="" heading="">
 		
