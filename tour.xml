@@ -32,7 +32,7 @@
 	<action name="rebuild_design_selection" autorun="onstart" scope="local" args="design"  onchange="selectItemByName(0);">
 		removeComboboxLayer(cbdesigns);
 		addComboboxLayer(cbdesigns, get(design));
-		set(layer[cbdesigns].align, 'center');
+		set(layer[cbdesigns].align, 'bottom'); 
 		layer[cbdesigns].additem('Select Combobox Design');
 		for(set(i,0), i LT combobox_design.count, inc(i),
 			layer[cbdesigns].additem( get(combobox_design[get(i)].name), calc('rebuild_design_selection(' + combobox_design[get(i)].name + ');')  );
