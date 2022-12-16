@@ -16,7 +16,7 @@
 	</action>
 
 	<!-- static example -->
-	<combobox name="cbsettings" design="vtour" align="righttop" x="10" y="10" onchange="selectItemByName(0);">
+	<combobox name="cbsettings" design="vtour" align="rightbottom" x="10" y="10" onchange="selectItemByName(0);">
 		<item name="item0" caption="SETTINGS" />
 		<item name="item1" caption="Drag Control"       onclick="set(control.mode,drag);" />
 		<item name="item2" caption="Move Control"       onclick="set(control.mode,moveto);" />
